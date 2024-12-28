@@ -1,171 +1,95 @@
-﻿@model IEnumerable<SeatBookingProj.Models.Seat>
- 
+﻿
 @{
-    ViewBag.Title = "Dashboard";
-    var selectedLocation = ViewBag.SelectedLocation as string;
-    var availableSeats = (int?)ViewBag.AvailableSeats ?? 0;
-    var bookedSeats = (int?)ViewBag.BookedSeats ?? 0;
-    var locations = ViewBag.Locations as List<string>;
-    var bookingHistory = ViewBag.BookingHistory as List<SeatBookingProj.Models.Booking>;
+    ViewBag.Title = " Admin Dashboard";
+    bool canUpload = ViewBag.CanUpload as bool? ?? false;
 }
- 
-<!-- Link to the sample.css file -->
-<link rel="stylesheet" href="/css/sample.css">
- 
-<div class="container">
-    <h2>Employee Dashboard</h2>
- 
-    <!-- Location Dropdown -->
-    <div class="form-group">
-        <label for="locationSelect">Select Location:</label>
-        <select id="locationSelect" class="form-control" onchange="changeLocation(this.value)">
-            <option value="">-- Please Choose Location --</option>
-            @foreach (var location in locations)
-            {
-                @if (selectedLocation == location)
+
+
+    <form asp-action="UploadEmployees" asp-controller="Admin" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">Upload Employees Data(Excel):</label>
+            <input type="file" class="form-control" id="file" name="file" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+
+
+<h3>Seat Booking Details</h3>
+
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Employee Name</th>
+                    <th>Seat ID</th>
+                    <th>Booking Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Model)
                 {
-                    <option value="@location" selected)>@location</option>
+                    <tr>
+                        <td>@booking.Id</td>
+                        <td>@booking.Employee.Name</td>
+                        <td>@booking.Seat.Id</td>
+                        <td>@booking.BookingDate.ToShortDateString()</td>
+                        <td>
+                        <button class="btn btn-danger delete-booking" data-booking-id="@booking.Id">Delete</button>
+                        </td>
+                    </tr>
                 }
-                else
-                {
-                    <option value="@location">@location</option>
-                }            }
-        </select>
-    </div>
- 
-    <!-- Seat Counts -->
-    @if (!string.IsNullOrEmpty(selectedLocation))
-    {
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <h5>Available Seats: @availableSeats</h5>
-            <h5>Booked Seats: @bookedSeats</h5>
-        </div>
-    }
- 
+            </tbody>
+        </table>
+        <button id="deleteAllBookingsBtn" class="btn btn-danger">Delete All Bookings</button>
 
-    @if (!string.IsNullOrEmpty(selectedLocation))
-    {
-        <div class="d-flex justify-content-end mt-4">
-            <button id="viewBookingHistoryBtn" class="btn btn-danger text-white" onclick="showBookedSeatsModal()">
-                Please! Click to See Your Booked Seats
-            </button>
-        </div>
-    }
+<!-- JavaScript -->
+<script>
+    // Delete Individual Booking
+        document.querySelectorAll('.delete-booking').forEach(button => {
+        button.addEventListener('click', function () {
+            const bookingId = this.dataset.bookingId;
 
-    <div class="d-flex justify-content-between align-items-center mt-4">
-        <div style="width:66%;"></div>
+            if (confirm('Are you sure you want to delete this booking?')) {
+                fetch('/Admin/DeleteBooking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookingId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Booking deleted successfully!');
+                        window.location.reload();
+                    } else {
+                        alert(data.error || 'An unknown error occurred while deleting the booking.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('A network error occurred. Please try again.');
+                });
+            }
+        });
+    });
 
-        <div class="text-center" style="width:100%;">
-            <button id="bookSeatsBtn" class="btn btn-primary mt-3" onclick="openBookingModal()"
-                    style="visibility:hidden;">
-                Book Selected Seats
-            </button>
-        </div>
-
-    </div>
-
-    
- 
-    <!-- Message or Seat Layout -->
-    <div class="mt-4">
-        @if (string.IsNullOrEmpty(selectedLocation))
-        {
-            <div class="alert alert-info">
-                <strong>Please choose the location where you want to book your seat.</strong>
-            </div>
+    // Delete All Bookings
+    document.getElementById('deleteAllBookings').addEventListener('click', function () {
+        if (confirm('Are you sure you want to delete all bookings?')) {
+            fetch('/Admin/DeleteAllBookings', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('All bookings deleted successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'An error occurred while deleting all bookings.');
+                }
+            });
         }
-        else if (!Model.Any())
-        {
-            <div class="alert alert-warning">
-                <strong>No seats are available for the selected location.</strong>
-            </div>
-        }
-        else
-        {
-            <div id="seatContainer" class="seat-grid">
-                @foreach (var seat in Model)
-                {
-                    <div class="seat-wrapper">
-                        <input type="checkbox" class="seat-checkbox" data-seat-id="@seat.Id" data-seat-number="@seat.SeatNumber" @(seat.IsBooked ? "disabled" : "") />
-                        <div class="seat-icon @(seat.IsBooked ? "booked" : "available")" data-seat-id="@seat.Id" data-seat-status="@(seat.IsBooked ? "Booked" : "Available")" onmouseover="showSeatDetails(this)" onmouseout="hideSeatDetails(this)">
-                            <div class="seat-number">@seat.SeatNumber.Substring(seat.SeatNumber.Length - 3)</div>
-                            <div class="hover-card">
-                                <p><strong>Seat: </strong>@seat.SeatNumber</p>
-                                <p><strong>Status: </strong><span class="status-circle @(seat.IsBooked ? "status-booked" : "status-available")"></span> @(seat.IsBooked ? "Booked" : "Available")</p>
-                                <p><strong>Location: </strong>@seat.Location</p>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-    </div>
-</div>
-
- 
-<!-- Booked Seats Modal -->
-<div class="modal fade" id="bookedSeatsModal" tabindex="-1" aria-labelledby="bookedSeatsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="bookedSeatsModalLabel">Your Booked Seats</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @if (bookingHistory != null && bookingHistory.Any())
-                {
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Booking ID</th>
-                                <th>Seat Number</th>
-                                <th>Date</th>
-                                <th>Time Slot</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var booking in bookingHistory)
-                            {
-                                <tr>
-                                    <td>@booking.Id</td>
-                                    <td>@booking.Seat.SeatNumber</td>
-                                    <td>@booking.BookingDate.ToShortDateString()</td>
-                                    <td>@booking.TimeSlot</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <p>You have no booking history.</p>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Booking Modal -->
-<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="bookingModalLabel">Book Seats</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="bookingForm">
-                    <input type="hidden" id="selectedSeats" name="selectedSeats" />
-                    <div id="seatDetailsContainer"></div>
-                    <button type="submit" class="btn btn-success mt-3">Book Seats</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/sample.js"></script>
+    });
+</script>
