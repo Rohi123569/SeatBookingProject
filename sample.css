@@ -1,0 +1,221 @@
+﻿
+/* Flexbox container for buttons */
+.d-flex {
+    display: flex;
+    justify-content: space-between; /* Align buttons at opposite ends */
+    align-items: center; /* Vertically center */
+    margin-top: 20px;
+}
+
+/* Book Selected Seats button styling */
+#bookSeatsBtn {
+    background-color: #007bff; /* Bootstrap Primary Color */
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+
+    visibility:hidden;
+}
+#bookSeatsBtn.visible{
+    visibility:visible;
+}
+
+    #bookSeatsBtn:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+        transform: scale(1.05); /* Slightly enlarge on hover */
+        box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+    }
+
+
+.seat-layout {
+    margin: 20px 0;
+}
+
+.seat-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 20px; /* Increase gap to prevent overlap */
+    justify-content: center;
+}
+
+.seat-icon {
+    width: 40px;
+    height: 40px;
+    background-color:#28a745;
+    /*background: linear-gradient(45deg, #dc3545, #28a745);*/ /* Default color for available seats */
+    border-radius: 10px; /* Rounded corners */
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add shadow for 3D effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for hover effects */
+}
+
+    .seat-icon:hover {
+        transform: scale(1.1); /* Slightly enlarge on hover */
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
+/*        background-color: linear-gradient(45deg, #dc3545, #28a745);*/
+    }
+
+    .seat-icon.booked {
+        background: #dc3545; /* Red for booked seats */
+        cursor: not-allowed; /* Change cursor to indicate non-clickable */
+    }
+
+.seat-number {
+    margin-top: 5px; /* Add margin to create gap */
+    text-align: center;
+    font-size: 0.9em;
+    color: #fff; /* Change text color to white for better contrast */
+}
+
+.seat-icon::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 10px;
+    background-color: #ccc; /* Base of the seat */
+    border-radius: 0 0 10px 10px; /* Rounded bottom corners */
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+}
+
+.seat-icon::after {
+    content: '';
+    display: block;
+    width: 80%;
+    height: 5px;
+    background-color: #666; /* Armrest color */
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+/* Hover card styles */
+.hover-card {
+    position: absolute;
+    top: -80px; /* Position above the seat icon */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    padding: 10px;
+    background: linear-gradient(45deg, #28a745, #dc3545);
+/*    border: 1px solid #ccc;*/
+    border:none;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); /* Enhance shadow for hover card */
+    display: none; /* Initially hidden */
+    z-index: 10;
+    transition: opacity 0.3s ease, background 0.3s ease; /* Smooth transition for hover card */
+    opacity: 0; /* Initially transparent */
+    color:white;
+    font-size:0.9em;
+}
+
+.seat-icon:hover .hover-card {
+    display: block; /* Show on hover */
+    opacity: 1; /* Fully opaque on hover */
+    background-color: linear-gradient(45deg, #dc3545, #28a745);
+}
+
+.status-circle {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-available {
+    background-color: #28a745; /* Green for available */
+}
+
+.status-booked {
+    background-color: #dc3545; /* Red for booked */
+}
+
+
+/* Booking Modal Styles */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background-color: #007bff;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+    .btn-success:hover {
+        background-color: #218838;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+.btn-close {
+    background-color: transparent;
+    border: none;
+    font-size: 1.2em;
+    color: white;
+    opacity: 0.8;
+}
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+#viewBookingHistoryBtn {
+    background: linear-gradient(45deg, #dc3545, #28a745);
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    border-radius:5px;
+/*    transition: background 0.3s ease,transform 0.2s ease;*/
+    transition:all 0.3s ease;
+    padding:10px 20px;
+
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+    #viewBookingHistoryBtn:hover {
+        background: linear-gradient(45deg, #28a745, #dc3545);
+        transform:scale(1.05);
+        box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+    }
+
