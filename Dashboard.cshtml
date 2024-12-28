@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewBag.Title = " Admin Dashboard";
+    bool canUpload = ViewBag.CanUpload as bool? ?? false;
+}
+
+
+    <form asp-action="UploadEmployees" asp-controller="Admin" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="file">Upload Employees Data(Excel):</label>
+            <input type="file" class="form-control" id="file" name="file" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+
+
+<h3>Seat Booking Details</h3>
+
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Employee Name</th>
+                    <th>Seat ID</th>
+                    <th>Booking Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Model)
+                {
+                    <tr>
+                        <td>@booking.Id</td>
+                        <td>@booking.Employee.Name</td>
+                        <td>@booking.Seat.Id</td>
+                        <td>@booking.BookingDate.ToShortDateString()</td>
+                        <td>
+                        <button class="btn btn-danger delete-booking" data-booking-id="@booking.Id">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button id="deleteAllBookingsBtn" class="btn btn-danger">Delete All Bookings</button>
+
+<!-- JavaScript -->
+<script>
+    // Delete Individual Booking
+        document.querySelectorAll('.delete-booking').forEach(button => {
+        button.addEventListener('click', function () {
+            const bookingId = this.dataset.bookingId;
+
+            if (confirm('Are you sure you want to delete this booking?')) {
+                fetch('/Admin/DeleteBooking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookingId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Booking deleted successfully!');
+                        window.location.reload();
+                    } else {
+                        alert(data.error || 'An unknown error occurred while deleting the booking.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('A network error occurred. Please try again.');
+                });
+            }
+        });
+    });
+
+    // Delete All Bookings
+    document.getElementById('deleteAllBookings').addEventListener('click', function () {
+        if (confirm('Are you sure you want to delete all bookings?')) {
+            fetch('/Admin/DeleteAllBookings', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('All bookings deleted successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'An error occurred while deleting all bookings.');
+                }
+            });
+        }
+    });
+</script>

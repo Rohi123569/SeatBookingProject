@@ -1,0 +1,8 @@
+﻿<h2>Upload Employees</h2>
+<form asp-action="UploadEmployees" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Select Excel File</label>
+        <input type="file" class="form-control" id="file" name="file" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
